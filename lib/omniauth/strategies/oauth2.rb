@@ -68,7 +68,9 @@ module OmniAuth
         if error
           fail!(error, CallbackError.new(request.params["error"], request.params["error_description"] || request.params["error_reason"], request.params["error_uri"]))
         elsif !options.provider_ignores_state && request.params["state"].to_s.empty?
-          fail!(:csrf_detected, CallbackError.new(:csrf_detected, "CSRF detected"))
+          self.access_token = build_access_token
+          self.access_token = access_token.refresh! if access_token.expired?
+          super
         else
           self.access_token = build_access_token
           self.access_token = access_token.refresh! if access_token.expired?
